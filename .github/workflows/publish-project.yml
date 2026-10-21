@@ -1,0 +1,31 @@
+name: Publish project files
+
+on:
+  push:
+    paths:
+      - TFA5-browser-upload.zip
+      - .github/workflows/publish-project.yml
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unpack Laravel project
+        shell: bash
+        run: |
+          unzip -q TFA5-browser-upload.zip -d extracted
+          shopt -s dotglob
+          cp -a extracted/SariPOS-TFA5/. .
+          rm -rf extracted TFA5-browser-upload.zip
+      - name: Commit project files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Publish Laravel project files"
+          git push
